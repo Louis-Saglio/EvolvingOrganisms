@@ -1,27 +1,41 @@
-import random
-import time
+from typing import Set, Tuple
 
-import pygame
 
-import organism
-import gui
-from organism import Direction
+class Organism:
+    def __init__(self):
+        self.genome = {
+            "similarity_factor": 5,
+            "up_factor": 2,
+            "down_factor": 2,
+            "left_factor": 2,
+            "right_factor": 2,
+            "1_distance_factor": 1,
+            "2_distance_factor": 1,
+        }
 
-o = organism.Organism()
+    def get_similarity_with(self, other: "Organism") -> int:
+        raise NotImplementedError
 
-screen = pygame.display.set_mode((500, 500))
+    def analyse_cell_for_dir(self, other: "Organism", direction: str, distance: int) -> int:
+        return (
+            self.get_similarity_with(other)
+            * self.genome["similarity_factor"]
+            * self.genome[direction + "_factor"]
+            * self.genome[str(distance) + "_distance_factor"]
+        )
 
-o.gui_manager = gui.PygameOrganism(o, screen)
-o.gui_manager.draw()
+    def choose_dir(self, data: Set[Tuple["Organism", str, int]]):
+        next_directions = {}
+        for datum in data:
+            next_directions[datum[1]] = self.analyse_cell_for_dir(*datum)
+        print(next_directions)
+        return max(next_directions, key=lambda x: next_directions[x])
 
-while True:
-    try:
-        o.move()
-        if random.randint(0, 9) == 0:
-            raise ValueError
-    except ValueError:
-        o.direction = random.choice(Direction.VALUES)
-    screen.fill((0, 0, 0))
-    o.gui_manager.draw()
-    time.sleep(0.1)
-    pygame.display.flip()
+
+def main():
+    o = Organism()
+    print(o.choose_dir({(o, "up", 1), (o, "down", 2), (o, "left", 1), (o, "right", 1)}))
+
+
+if __name__ == "__main__":
+    main()
