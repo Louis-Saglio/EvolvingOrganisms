@@ -9,12 +9,21 @@ class Organism(Pawn):
         self._color = "#" + "".join(choices("0123456789ABC", k=6))
         self.speed = randint(1, 5)
         self.mass = 5 - self.speed
+        self.energy = 100
 
     @property
     def color(self):
         return self._color
 
+    def eat(self, other: "Organism"):
+        other.cell.mother.remove_pawn(other)
+        self.energy += other.mass * 500
+
     def run(self):
+        if self.energy == 0:
+            self.cell.mother.remove_pawn(self)
+            return
+        self.energy -= 1
         for _ in range(self.speed):
 
             next_cell = self.cell.get_cell_by_direction(Direction((randint(-1, 1), randint(-1, 1))), None)
@@ -33,9 +42,12 @@ class Organism(Pawn):
                         dead = pawn
                     else:
                         dead = choice((self, pawn))
-                    self.cell.mother.remove_pawn(dead)
                     if dead is self:
+                        # noinspection PyTypeChecker
+                        pawn.eat(self)
                         return
+                    else:
+                        self.eat(pawn)
 
 
 class Cell(BaseCell):
