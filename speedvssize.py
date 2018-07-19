@@ -37,9 +37,11 @@ class Organism(Pawn):
         for _ in range(self.speed):
             self.age += 1
             if self.age % 1000 == 0:
-                self.cell.mother.add_pawn(
-                    self.get_clone(), (randint(0, self.cell.mother.width - 1), randint(0, self.cell.mother.height - 1))
-                )
+                birth_cell = self.cell.get_cell_by_direction(Direction((randint(-1, 1), randint(-1, 1))), None)
+                if birth_cell is not None:
+                    self.cell.mother.add_pawn(
+                        self.get_clone(), birth_cell.position._position
+                    )
 
             next_cell = self.cell.get_cell_by_direction(Direction((randint(-1, 1), randint(-1, 1))), None)
             if next_cell is not None:
