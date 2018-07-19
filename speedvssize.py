@@ -29,7 +29,7 @@ class Organism(Pawn):
             next_cell = self.cell.get_cell_by_direction(Direction((randint(-1, 1), randint(-1, 1))), None)
             if next_cell is not None:
                 for pawn in next_cell._stack:
-                    if pawn.mass > self.mass:
+                    if isinstance(pawn, Organism) and pawn.mass > self.mass:
                         break
                 else:
                     self.go_to(next_cell)
@@ -50,6 +50,24 @@ class Organism(Pawn):
                         self.eat(pawn)
 
 
+class Food(Pawn):
+
+    def __init__(self):
+        super().__init__()
+        self.energy = 30
+
+    @property
+    def color(self):
+        return "#000000"
+
+    def run(self):
+        self.energy += 1
+        if self.energy % 100 == 0:
+            next_cell = self.cell.get_cell_by_direction(Direction((randint(-1, 1), randint(-1, 1))), None)
+            if next_cell is not None and not [pawn for pawn in next_cell._stack if isinstance(pawn, Food)]:
+                self.cell.mother.add_pawn(Food(), next_cell.position._position)
+
+
 class Cell(BaseCell):
     @property
     def color(self):
@@ -60,5 +78,6 @@ class Cell(BaseCell):
 
 m = Map(70, 70, Cell)
 for i in range(40):
-    m.add_pawn(Organism(), (randint(0, 49), randint(0, 49)))
+    m.add_pawn(Organism(), (randint(0, 69), randint(0, 69)))
+    m.add_pawn(Food(), (randint(0, 69), randint(0, 69)))
 m.mainloop()
