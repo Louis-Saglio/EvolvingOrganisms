@@ -1,4 +1,4 @@
-from random import choices, randint
+from random import choices, randint, choice
 
 from Py2Dmap import BaseCell, Pawn, Direction, Map
 
@@ -17,7 +17,9 @@ class Organism(Pawn):
     def run(self):
         for _ in range(self.speed):
 
-            self.move(Direction((randint(-1, 1), randint(-1, 1))))
+            next_cell = self.cell.get_cell_by_direction(Direction((randint(-1, 1), randint(-1, 1))), None)
+            if next_cell is not None:
+                self.go_to(next_cell)
 
             for pawn in self.cell._stack:
                 if pawn is not self and isinstance(pawn, Organism):
