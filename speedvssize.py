@@ -58,12 +58,13 @@ class Organism(Pawn):
                     elif self.mass > pawn.mass:
                         dead = pawn
                     else:
-                        dead = choice((self, pawn))
+                        dead = None
+                        # dead = choice((self, pawn))
                     if dead is self:
                         # noinspection PyTypeChecker
                         pawn.eat(self)
                         return
-                    else:
+                    elif dead is not None:
                         self.eat(pawn)
                 elif isinstance(pawn, Food):
                     self.eat(pawn)
