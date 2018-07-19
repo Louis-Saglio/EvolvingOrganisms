@@ -45,10 +45,10 @@ class Organism(Pawn):
 
             next_cell = self.cell.get_cell_by_direction(Direction((randint(-1, 1), randint(-1, 1))), None)
             if next_cell is not None:
-                for pawn in next_cell._stack:
-                    if isinstance(pawn, Organism) and pawn.mass > self.mass:
-                        break
-                else:
+                # for pawn in next_cell._stack:
+                    # if isinstance(pawn, Organism) and pawn.mass > self.mass:
+                    #     break
+                # else:
                     self.go_to(next_cell)
 
             for pawn in self.cell._stack:
