@@ -1,4 +1,5 @@
 from random import choices, randint, choice
+from typing import Union
 
 from Py2Dmap import BaseCell, Pawn, Direction, Map
 
@@ -15,9 +16,9 @@ class Organism(Pawn):
     def color(self):
         return self._color
 
-    def eat(self, other: "Organism"):
+    def eat(self, other: Union["Organism", "Food"]):
         other.cell.mother.remove_pawn(other)
-        self.energy += other.mass * 500
+        self.energy += other.energy
 
     def run(self):
         if self.energy == 0:
@@ -48,6 +49,8 @@ class Organism(Pawn):
                         return
                     else:
                         self.eat(pawn)
+                elif isinstance(pawn, Food):
+                    self.eat(pawn)
 
 
 class Food(Pawn):
