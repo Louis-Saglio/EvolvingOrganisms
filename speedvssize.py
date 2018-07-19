@@ -19,13 +19,16 @@ class Organism(Pawn):
 
             self.move(Direction((randint(-1, 1), randint(-1, 1))))
 
-            maxi = None
             for pawn in self.cell._stack:
-                if isinstance(pawn, Organism):
-                    if maxi is None:
-                        maxi = pawn.mass
-                    if pawn.mass < maxi:
-                        self.cell.mother.remove_pawn(pawn)
+                if pawn is not self and isinstance(pawn, Organism):
+                    if self.mass < pawn.mass:
+                        dead = self
+                    elif self.mass > pawn.mass:
+                        dead = pawn
+                    else:
+                        dead = choice((self, pawn))
+                    self.cell.mother.remove_pawn(dead)
+                    if dead is self:
                         return
 
 
