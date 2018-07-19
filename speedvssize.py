@@ -14,7 +14,12 @@ class Organism(Pawn):
         self.age = 0
 
     def get_clone(self) -> "Organism":
-        return Organism(self.color, self.speed)
+        speed = self.speed
+        color = self.color
+        if randint(0, 99) == 0:
+            speed += choice((-1, 1))
+            color = None
+        return Organism(color, speed)
 
     @property
     def color(self):
