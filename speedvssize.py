@@ -28,6 +28,8 @@ class Organism(Pawn):
     def eat(self, other: Union["Organism", "Food"]):
         other.cell.mother.remove_pawn(other)
         self.energy += other.energy
+        if self.energy > 200:
+            self.energy = 200
 
     def run(self):
         if self.energy == 0:
