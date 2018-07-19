@@ -19,7 +19,11 @@ class Organism(Pawn):
 
             next_cell = self.cell.get_cell_by_direction(Direction((randint(-1, 1), randint(-1, 1))), None)
             if next_cell is not None:
-                self.go_to(next_cell)
+                for pawn in next_cell._stack:
+                    if pawn.mass > self.mass:
+                        break
+                else:
+                    self.go_to(next_cell)
 
             for pawn in self.cell._stack:
                 if pawn is not self and isinstance(pawn, Organism):
@@ -40,17 +44,6 @@ class Cell(BaseCell):
         if not self._stack:
             return "#EEEEEE"
         return self._stack[-1].color
-
-    # def put(self, pawn: "Pawn"):
-    #     super().put(pawn)
-    #     maxi = None
-    #     for pawn in self._stack:
-    #         if isinstance(pawn, Organism):
-    #             if maxi is None:
-    #                 maxi = pawn.mass
-    #             if pawn.mass < maxi:
-    #                 self.mother.remove_pawn(pawn)
-    #                 break
 
 
 m = Map(70, 70, Cell)
