@@ -5,12 +5,16 @@ from Py2Dmap import BaseCell, Pawn, Direction, Map
 
 
 class Organism(Pawn):
-    def __init__(self):
+    def __init__(self, color=None, speed=None):
         super().__init__()
-        self._color = "#" + "".join(choices("0123456789ABC", k=6))
-        self.speed = randint(1, 5)
-        self.mass = 5 - self.speed
-        self.energy = 100
+        self._color = color or "#" + "".join(choices("0123456789ABC", k=6))
+        self.speed = speed or randint(1, 20)
+        self.mass = 20 - self.speed
+        self.energy = 70
+        self.age = 0
+
+    def get_clone(self) -> "Organism":
+        return Organism(self.color, self.speed)
 
     @property
     def color(self):
@@ -26,6 +30,11 @@ class Organism(Pawn):
             return
         self.energy -= 1
         for _ in range(self.speed):
+            self.age += 1
+            if self.age % 1000 == 0:
+                self.cell.mother.add_pawn(
+                    self.get_clone(), (randint(0, self.cell.mother.width - 1), randint(0, self.cell.mother.height - 1))
+                )
 
             next_cell = self.cell.get_cell_by_direction(Direction((randint(-1, 1), randint(-1, 1))), None)
             if next_cell is not None:
@@ -54,7 +63,6 @@ class Organism(Pawn):
 
 
 class Food(Pawn):
-
     def __init__(self):
         super().__init__()
         self.energy = 30
@@ -65,7 +73,7 @@ class Food(Pawn):
 
     def run(self):
         self.energy += 1
-        if self.energy % 100 == 0:
+        if self.energy % 60 == 0:
             next_cell = self.cell.get_cell_by_direction(Direction((randint(-1, 1), randint(-1, 1))), None)
             if next_cell is not None and not [pawn for pawn in next_cell._stack if isinstance(pawn, Food)]:
                 self.cell.mother.add_pawn(Food(), next_cell.position._position)
@@ -83,4 +91,7 @@ m = Map(70, 70, Cell)
 for i in range(40):
     m.add_pawn(Organism(), (randint(0, 69), randint(0, 69)))
     m.add_pawn(Food(), (randint(0, 69), randint(0, 69)))
-m.mainloop()
+pawns = m.mainloop()
+for pawn in pawns:
+    if isinstance(pawn, Organism):
+        print(pawn.mass)
