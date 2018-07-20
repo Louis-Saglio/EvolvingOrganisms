@@ -1,22 +1,30 @@
-from random import choices, randint, choice
+from pprint import pprint
+from random import randint, choice, choices
 from typing import Union
 
 from Py2Dmap import BaseCell, Pawn, Direction, Map
+
+organism_counter = {}
+food_counter = {}
 
 
 class Organism(Pawn):
     def __init__(self, color=None, speed=None):
         super().__init__()
-        self._color = color or "#" + "".join(choices("0123456789ABC", k=6))
+        self._color = color or "#" + "".join(choices("56789AB", k=6))
         self.speed = speed or randint(1, 20)
-        self.mass = 20 - self.speed
+        self.mass = -self.speed
         self.energy = 70
         self.age = 0
+        if self.speed in organism_counter:
+            organism_counter[self.speed] += 1
+        else:
+            organism_counter[self.speed] = 1
 
     def get_clone(self) -> "Organism":
         speed = self.speed
         color = self.color
-        if randint(0, 99) == 0:
+        if randint(0, 50) == 0:
             speed += choice((-1, 1))
             color = None
         return Organism(color, speed)
@@ -41,17 +49,15 @@ class Organism(Pawn):
             if self.age % 1000 == 0:
                 birth_cell = self.cell.get_cell_by_direction(Direction((randint(-1, 1), randint(-1, 1))), None)
                 if birth_cell is not None:
-                    self.cell.mother.add_pawn(
-                        self.get_clone(), birth_cell.position._position
-                    )
+                    self.cell.mother.add_pawn(self.get_clone(), birth_cell.position._position)
 
             next_cell = self.cell.get_cell_by_direction(Direction((randint(-1, 1), randint(-1, 1))), None)
             if next_cell is not None:
                 # for pawn in next_cell._stack:
-                    # if isinstance(pawn, Organism) and pawn.mass > self.mass:
-                    #     break
+                # if isinstance(pawn, Organism) and pawn.mass > self.mass:
+                #     break
                 # else:
-                    self.go_to(next_cell)
+                self.go_to(next_cell)
 
             for pawn in self.cell._stack:
                 if pawn is not self and isinstance(pawn, Organism):
@@ -59,6 +65,8 @@ class Organism(Pawn):
                         dead = self
                     elif self.mass > pawn.mass:
                         dead = pawn
+                    elif self.color != pawn.color:
+                        dead = choice((self, pawn))
                     else:
                         dead = None
                         # dead = choice((self, pawn))
@@ -73,20 +81,32 @@ class Organism(Pawn):
 
 
 class Food(Pawn):
-    def __init__(self):
+    def __init__(self, energy=None, color=None):
         super().__init__()
-        self.energy = 5
+        self.energy = energy or 50
+        self.age = 0
+        self._color = color or "#" + "".join(choices("01234", k=6))
+        if self.energy in food_counter:
+            food_counter[self.energy] += 1
+        else:
+            food_counter[self.energy] = 1
 
     @property
     def color(self):
-        return "#000000"
+        return self._color
 
     def run(self):
-        self.energy += 1
-        if self.energy % 45 == 0:
+        self.age += 1
+        if self.age % 30 == 0:
             next_cell = self.cell.get_cell_by_direction(Direction((randint(-1, 1), randint(-1, 1))), None)
-            if next_cell is not None and not [pawn for pawn in next_cell._stack if isinstance(pawn, Food)]:
-                self.cell.mother.add_pawn(Food(), next_cell.position._position)
+            if next_cell is not None and not next_cell._stack:
+                if randint(0, 99) == 0:
+                    energy = self.energy + choice((-1, 1))
+                    color = "#" + "".join(choices("01234", k=6))
+                else:
+                    energy = self.energy
+                    color = self.color
+                self.cell.mother.add_pawn(Food(energy, color), next_cell.position._position)
 
 
 class Cell(BaseCell):
@@ -97,11 +117,15 @@ class Cell(BaseCell):
         return self._stack[-1].color
 
 
-m = Map(100, 100, Cell)
-for i in range(60):
-    m.add_pawn(Organism(), (randint(0, 99), randint(0, 99)))
-    m.add_pawn(Food(), (randint(0, 99), randint(0, 99)))
+m = Map(90, 90, Cell)
+# m = Map(100, 170, Cell)
+for i in range(70):
+    m.add_pawn(Organism(color="#885599", speed=5), (randint(0, m.width-1), randint(0, m.height-1)))
+    m.add_pawn(Food(), (randint(0, m.width-1), randint(0, m.height-1)))
 pawns = m.mainloop()
 for pawn in pawns:
     if isinstance(pawn, Organism):
         print(pawn.mass, pawn.color)
+
+pprint(organism_counter)
+pprint(food_counter)
