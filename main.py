@@ -25,7 +25,7 @@ class Organism:
             * self.genome[str(distance) + "_distance_factor"]
         )
 
-    def choose_dir(self, data: Set[Tuple["Organism", str, int]]):
+    def choose_direction(self, data: Set[Tuple["Organism", str, int]]):
         next_directions = {}
         for datum in data:
             next_directions[datum[1]] = self.analyse_cell_for_dir(*datum)
@@ -59,7 +59,7 @@ class Engine:
     def move_organisms(self):
         for organism in self.organisms:
             print(organism[0])
-            organism[1].choose_dir(self.get_vision_for_cell(*organism[0]))
+            organism[1].choose_direction(self.get_vision_for_cell(*organism[0]))
 
 
 def main():

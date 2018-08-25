@@ -101,7 +101,7 @@ class Food(Pawn):
             next_cell = self.cell.get_cell_by_direction(Direction((randint(-1, 1), randint(-1, 1))), None)
             if next_cell is not None and not next_cell._stack:
                 if randint(0, 99) == 0:
-                    energy = self.energy + choice((-1, 1))
+                    energy = self.energy + choice(tuple(range(-10, 10)))
                     color = "#" + "".join(choices("01234", k=6))
                 else:
                     energy = self.energy
@@ -117,15 +117,13 @@ class Cell(BaseCell):
         return self._stack[-1].color
 
 
-m = Map(90, 90, Cell)
+m = Map(100, 100, Cell)
 # m = Map(100, 170, Cell)
 for i in range(70):
     m.add_pawn(Organism(color="#885599", speed=5), (randint(0, m.width-1), randint(0, m.height-1)))
-    m.add_pawn(Food(), (randint(0, m.width-1), randint(0, m.height-1)))
-pawns = m.mainloop()
-for pawn in pawns:
-    if isinstance(pawn, Organism):
-        print(pawn.mass, pawn.color)
+    m.add_pawn(Food(energy=randint(10, 75)), (randint(0, m.width-1), randint(0, m.height-1)))
+generation_nbr, nbr_remaining = m.mainloop()
+print(generation_nbr, nbr_remaining)
 
 pprint(organism_counter)
 pprint(food_counter)
